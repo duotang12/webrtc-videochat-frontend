@@ -18,7 +18,7 @@ export class LandingPageComponent implements OnInit {
 
   private setUserMedia(): void {
     navigator.getUserMedia(
-      {video: {width: 300, height: 200}, audio: false},
+      {video: {width: 300, height: 200}, audio: true},
       (mediaStream) => {
         this.mediaStream = mediaStream;
         const videoElement = document.querySelector('video');

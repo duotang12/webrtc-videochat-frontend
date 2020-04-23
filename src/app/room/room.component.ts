@@ -200,7 +200,7 @@ export class RoomComponent implements OnInit {
 
   private getUserMedia() {
     navigator.getUserMedia(
-      {video: {width: 300, height: 200}, audio: false},
+      {video: {width: 300, height: 200}, audio: true},
       stream => {
         this.localMediaStream = stream;
         const localVideo: any = document.getElementById('local-video');
