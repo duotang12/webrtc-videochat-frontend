@@ -1,6 +1,6 @@
 <ng-container *ngIf="!roomIsFull else FULLROOOM">
   <div class="upper-container">
-    <video class="video" id="local-video" autoplay playsinline [controls]="false"></video>
+    <video class="video" id="local-video" autoplay playsinline muted [controls]="false"></video>
     <video class="video" *ngFor="let test of peerMediaElements | keyvalue" [srcObject]="test.value" autoplay playsinline
            [controls]="false"></video>
   </div>
