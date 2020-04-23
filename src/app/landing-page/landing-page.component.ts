@@ -1,8 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Socket} from 'ngx-socket-io';
-import {uuid} from 'uuidv4';
-import {Router} from '@angular/router';
-import {MediaStreamService} from '../services/media-stream.service';
+import {RoomService} from '../services/room.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -10,24 +7,24 @@ import {MediaStreamService} from '../services/media-stream.service';
   styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent implements OnInit {
-  mediaStream;
+  public mediaStream;
 
-  constructor(private socket: Socket,
-              private router: Router,
-              private mediaStreamService: MediaStreamService) {
+  constructor(public roomService: RoomService) {
   }
 
   ngOnInit() {
-    this.mediaStream = this.mediaStreamService.getUserMediaStream();
+    this.setUserMedia();
   }
 
-  createRoom() {
-    const roomId = uuid();
-    this.socket.emit('createRoom', {
-      roomId: roomId,
-      userStream: this.mediaStream
-    });
-
-    this.router.navigate(['room', roomId]);
+  private setUserMedia(): void {
+    navigator.getUserMedia(
+      {video: {width: 300, height: 200}, audio: false},
+      (mediaStream) => {
+        this.mediaStream = mediaStream;
+        const videoElement = document.querySelector('video');
+        videoElement.srcObject = mediaStream;
+      }, (error) => {
+        console.error('Error getting user media', error);
+      });
   }
 }

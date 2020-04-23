@@ -1,12 +1,24 @@
-<div class="upper-container">
-  <video class="video" id="local-video" autoplay playsinline [controls]="false"></video>
-  <video class="video" *ngFor="let test of peerMediaElements | keyvalue" [srcObject]="test.value" autoplay playsinline
-         [controls]="false"></video>
-</div>
+<ng-container *ngIf="!roomIsFull else FULLROOOM">
+  <div class="upper-container">
+    <video class="video" id="local-video" autoplay playsinline [controls]="false"></video>
+    <video class="video" *ngFor="let test of peerMediaElements | keyvalue" [srcObject]="test.value" autoplay playsinline
+           [controls]="false"></video>
+  </div>
 
-<div class="lower-container">
-  <mat-card class="card">
-    <h3>Share the link to this room!</h3>
-    <button mat-raised-button color="primary" (click)="copyRoomUrlToClipboard()">Copy room link</button>
-  </mat-card>
-</div>
+  <div class="lower-container">
+    <mat-card class="card">
+      <h3>Share the link to this room!</h3>
+      <button mat-raised-button color="primary" (click)="copyRoomUrlToClipboard()">Copy room link</button>
+    </mat-card>
+  </div>
+</ng-container>
+
+<ng-template #FULLROOOM>
+  <div class="full-room-container">
+    <h2 class="apologies">Sorry, the room is full...</h2>
+    <mat-card class="card">
+      <h3>Create your own room!</h3>
+      <button mat-raised-button color="primary" (click)="createNewRoom()">Go</button>
+    </mat-card>
+  </div>
+</ng-template>

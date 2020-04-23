@@ -11,7 +11,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {RoomComponent} from './room/room.component';
 
-const config: SocketIoConfig = {url: 'http://localhost:8080', options: {}};
+const config: SocketIoConfig = {url: 'https://webrtc-videochat-backend.herokuapp.com', options: {}};
 
 const routes: Routes = [
   {path: '', component: LandingPageComponent},

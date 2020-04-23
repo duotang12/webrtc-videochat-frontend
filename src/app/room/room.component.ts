@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Socket} from 'ngx-socket-io';
 import {ActivatedRoute} from '@angular/router';
 import * as copy from 'copy-to-clipboard';
-import {MediaStreamService} from '../services/media-stream.service';
+import {RoomService} from '../services/room.service';
 
 const ICE_SERVERS = [
   {urls: 'stun:stun.l.google.com:19302'}
@@ -15,7 +15,7 @@ const ICE_SERVERS = [
 })
 export class RoomComponent implements OnInit {
   public peerMediaElements = {};
-
+  public roomIsFull = false;
 
   private username = prompt('What\'s your name?');
   private localMediaStream = null;
@@ -23,13 +23,13 @@ export class RoomComponent implements OnInit {
 
   constructor(private socket: Socket,
               private activeRoute: ActivatedRoute,
-              private mediaStreamService: MediaStreamService) {
+              private roomService: RoomService) {
   }
 
   ngOnInit() {
     const routeParams = this.activeRoute.snapshot.params;
 
-    this.localMediaStream = this.mediaStreamService.getUserMediaStream();
+    this.setLocalMedia();
 
     setTimeout(() => {
       this.joinChannel(routeParams.roomId, {username: this.username});
@@ -54,10 +54,18 @@ export class RoomComponent implements OnInit {
     this.socket.on('removePeer', (config) => {
       this.handleRemovePeer(config);
     });
+
+    this.socket.on('roomFull', () => {
+      this.roomIsFull = true;
+    });
   }
 
   public copyRoomUrlToClipboard() {
     copy(window.location.href);
+  }
+
+  public createNewRoom() {
+    this.roomService.createRoom(this.localMediaStream);
   }
 
   private handleDisconnect() {
@@ -90,7 +98,6 @@ export class RoomComponent implements OnInit {
     const peerId = config.peerId;
 
     if (peerId in this.peers) {
-      console.log('Already connected to peer ', peerId);
       return;
     }
 
@@ -100,9 +107,9 @@ export class RoomComponent implements OnInit {
 
     peer.onicecandidate = (event) => {
       if (event.candidate) {
-        this.socket.emit('relayICECandidate', {
+        this.socket.emit('relayCandidate', {
           'peerId': peerId,
-          'ice_candidate': {
+          'iceCandidate': {
             'sdpMLineIndex': event.candidate.sdpMLineIndex,
             'candidate': event.candidate.candidate
           }
@@ -111,7 +118,6 @@ export class RoomComponent implements OnInit {
     };
 
     peer.ontrack = (event) => {
-      console.log('onAddStream', event);
       this.peerMediaElements[peerId] = event.streams[0];
     };
 
@@ -151,13 +157,13 @@ export class RoomComponent implements OnInit {
         }
       })
       .catch((error) => {
-        console.log('setRemoteDescription error: ', error);
+        console.error('setRemoteDescription error: ', error);
       });
   }
 
   private handleIceCandidate(config) {
     const peer = this.peers[config.peerId];
-    const iceCandidate = config.ice_candidate;
+    const iceCandidate = config.iceCandidate;
     peer.addIceCandidate(new RTCIceCandidate(iceCandidate));
   }
 
@@ -167,7 +173,7 @@ export class RoomComponent implements OnInit {
         this.setLocalDescription(peer, peerId, localDescription);
       })
       .catch((error) => {
-        console.log('Error creating answer: ', error);
+        console.error('Error creating answer: ', error);
       });
   }
 
@@ -182,11 +188,27 @@ export class RoomComponent implements OnInit {
       });
   }
 
+  private setLocalMedia() {
+    if (!this.localMediaStream) {
+      this.getUserMedia();
+    }
+  }
+
   private joinChannel(channel: string, userdata: any) {
     this.socket.emit('join', {'channel': channel, 'userdata': userdata});
   }
 
-  private partChannel(channel: string) {
-    this.socket.emit('part', channel);
+  private getUserMedia() {
+    navigator.getUserMedia(
+      {video: {width: 300, height: 200}, audio: false},
+      stream => {
+        this.localMediaStream = stream;
+        const localVideo: any = document.getElementById('local-video');
+        localVideo.srcObject = stream;
+      },
+      error => {
+        console.warn(error.message);
+      }
+    );
   }
 }
