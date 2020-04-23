@@ -2,13 +2,8 @@
   "name": "frontend",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "postinstall": "ng build --aot --prod",
     "start": "node server.js",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "build": "ng build --aot --prod"
   },
   "engines": {
     "node": "10.16.0",
@@ -31,6 +26,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@types/webrtc": "0.0.26",
     "copy-to-clipboard": "^3.3.1",
+    "express": "^4.17.1",
     "immutable": "^4.0.0-rc.12",
     "ngx-socket-io": "^3.0.1",
     "rxjs": "~6.4.0",
