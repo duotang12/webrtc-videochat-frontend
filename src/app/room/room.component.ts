@@ -38,35 +38,6 @@ export class RoomComponent implements OnInit {
 
   ngOnInit() {
     this.setLocalMedia();
-
-    this.socket.on('disconnect', () => {
-      this.handleDisconnect();
-    });
-
-    this.socket.on('sessionDescription', (config) => {
-      this.handleSessionDescription(config);
-    });
-
-    this.socket.on('iceCandidate', (config) => {
-      this.handleIceCandidate(config);
-    });
-
-    this.socket.on('removePeer', (config) => {
-      this.handleRemovePeer(config);
-    });
-
-    this.socket.on('roomFull', () => {
-      this.roomIsFull = true;
-    });
-
-    setTimeout(() => {
-      const routeParams = this.activeRoute.snapshot.params;
-      this.joinChannel(routeParams.roomId, {username: this.username});
-
-      this.socket.on('addPeer', (config) => {
-        this.handleAddPeer(config);
-      });
-    }, 1000);
   }
 
   public copyRoomUrlToClipboard() {
@@ -207,6 +178,35 @@ export class RoomComponent implements OnInit {
     this.socket.emit('join', {'channel': channel, 'userdata': userdata});
   }
 
+  private initSocketEvents() {
+    const routeParams = this.activeRoute.snapshot.params;
+    this.joinChannel(routeParams.roomId, {username: this.username});
+
+    this.socket.on('disconnect', () => {
+      this.handleDisconnect();
+    });
+
+    this.socket.on('sessionDescription', (config) => {
+      this.handleSessionDescription(config);
+    });
+
+    this.socket.on('iceCandidate', (config) => {
+      this.handleIceCandidate(config);
+    });
+
+    this.socket.on('removePeer', (config) => {
+      this.handleRemovePeer(config);
+    });
+
+    this.socket.on('roomFull', () => {
+      this.roomIsFull = true;
+    });
+
+    this.socket.on('addPeer', (config) => {
+      this.handleAddPeer(config);
+    });
+  }
+
   private getUserMedia() {
     navigator.getUserMedia(
       {video: {width: 300, height: 200}, audio: true},
@@ -214,6 +214,7 @@ export class RoomComponent implements OnInit {
         this.localMediaStream = stream;
         const localVideo: any = document.getElementById('local-video');
         localVideo.srcObject = stream;
+        this.initSocketEvents();
       },
       error => {
         console.warn(error.message);
