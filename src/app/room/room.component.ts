@@ -27,20 +27,10 @@ export class RoomComponent implements OnInit {
   }
 
   ngOnInit() {
-    const routeParams = this.activeRoute.snapshot.params;
-
     this.setLocalMedia();
-
-    setTimeout(() => {
-      this.joinChannel(routeParams.roomId, {username: this.username});
-    }, 100);
 
     this.socket.on('disconnect', () => {
       this.handleDisconnect();
-    });
-
-    this.socket.on('addPeer', (config) => {
-      this.handleAddPeer(config);
     });
 
     this.socket.on('sessionDescription', (config) => {
@@ -58,6 +48,15 @@ export class RoomComponent implements OnInit {
     this.socket.on('roomFull', () => {
       this.roomIsFull = true;
     });
+
+    setTimeout(() => {
+      const routeParams = this.activeRoute.snapshot.params;
+      this.joinChannel(routeParams.roomId, {username: this.username});
+
+      this.socket.on('addPeer', (config) => {
+        this.handleAddPeer(config);
+      });
+    }, 100);
   }
 
   public copyRoomUrlToClipboard() {
@@ -65,7 +64,7 @@ export class RoomComponent implements OnInit {
   }
 
   public createNewRoom() {
-    this.roomService.createRoom(this.localMediaStream);
+    this.roomService.createRoom(this.localMediaStream, true);
   }
 
   private handleDisconnect() {

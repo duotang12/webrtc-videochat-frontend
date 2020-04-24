@@ -27,7 +27,7 @@ const routes: Routes = [
   imports: [
     BrowserModule,
     SocketIoModule.forRoot(config),
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(routes, {onSameUrlNavigation: 'reload'}),
     FormsModule,
     RouterModule,
     MatCardModule,

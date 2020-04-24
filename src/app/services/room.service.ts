@@ -10,13 +10,18 @@ export class RoomService {
   constructor(private router: Router, private socket: Socket) {
   }
 
-  public createRoom(mediaStream) {
+  public createRoom(mediaStream, reload = false) {
     const roomId = uuid();
     this.socket.emit('createRoom', {
       roomId: roomId,
       userStream: mediaStream
     });
 
-    this.router.navigate(['room', roomId]);
+    this.router.navigate(['room', roomId])
+      .then(() => {
+        if (reload) {
+          location.reload();
+        }
+      });
   }
 }
