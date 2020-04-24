@@ -66,7 +66,7 @@ export class RoomComponent implements OnInit {
       this.socket.on('addPeer', (config) => {
         this.handleAddPeer(config);
       });
-    }, 100);
+    }, 1000);
   }
 
   public copyRoomUrlToClipboard() {
